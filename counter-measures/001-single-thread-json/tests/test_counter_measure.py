@@ -185,10 +185,10 @@ class MetricsTests(unittest.TestCase):
     def test_gc_logs_do_not_count_concurrent_cycles_as_pauses(self):
         with tempfile.TemporaryDirectory() as directory:
             log = Path(directory) / "gc.log"
-            log.write_text("[0.100s][info][gc,phases] GC(0) Pause Mark Start 0.010ms\n"
-                           "[1.100s][info][gc,phases] GC(1) Pause Mark Start 0.020ms\n"
-                           "[1.120s][info][gc,phases] GC(1) Concurrent Mark 15.000ms\n"
-                           "[1.130s][info][gc,phases] GC(1) Pause Mark End 0.030ms\n"
+            log.write_text("[0.100s][info][gc,phases   ] GC(0) Y: Pause Mark Start 0.010ms\n"
+                           "[1.100s][info][gc,phases   ] GC(1) Y: Pause Mark Start (Major) 0.020ms\n"
+                           "[1.120s][info][gc,phases   ] GC(1) Y: Concurrent Mark 15.000ms\n"
+                           "[1.130s][info][gc,phases   ] GC(1) O: Pause Mark End 0.030ms\n"
                            "[1.140s][info][gc] Allocation Stall (main) 4.000ms\n"
                            "[5.100s][info][gc,phases] GC(2) Pause Mark Start 0.100ms\n")
             handler = {"gc_window_start_uptime_ms": 1000, "gc_window_end_uptime_ms": 2000,
@@ -196,6 +196,7 @@ class MetricsTests(unittest.TestCase):
                        "gc_stats_after": {"ZGC Cycles": {"collections": 2}}}
             data = runner.gc_metrics("java", handler, log)
             self.assertEqual(data["pause_count"], 2)
+            self.assertEqual([event["generation"] for event in data["events"]], ["Y", "O"])
             self.assertAlmostEqual(data["pause_total_ms"], .05)
             self.assertEqual(data["collections"], 1)
             self.assertEqual(data["allocation_stall_count"], 1)

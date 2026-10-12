@@ -81,9 +81,11 @@ def gc_metrics(language, handler, log):
             clock = re.search(r"\[([0-9.]+)s\]", line)
             if not clock or not start <= float(clock[1]) * 1000 <= finish:
                 continue
-            pause = re.search(r"GC\(\d+\)\s+(Pause .*?)\s+([0-9.]+)ms\s*$", line)
+            pause = re.search(r"GC\((\d+)\)\s+(?:([YO]):\s+)?(Pause .*?)\s+([0-9.]+)ms\s*$", line)
             if pause:
-                events.append({"phase": pause[1], "pause_ms": float(pause[2])})
+                events.append({"cycle": int(pause[1]), "generation": pause[2],
+                               "phase": pause[3], "pause_ms": float(pause[4]),
+                               "uptime_ms": float(clock[1]) * 1000})
             stall = re.search(r"Allocation Stall.*?([0-9.]+)ms\s*$", line)
             if stall:
                 stalls.append(float(stall[1]))
