@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "counter_measures": [
+    {
+      "id": "001-single-thread-json",
+      "title": "One-thread TCP JSON processing",
+      "path": "counter-measures/001-single-thread-json",
+      "runner": "run_benchmarks.py",
+      "languages": ["CPython", "Java (ZGC)"]
+    }
+  ]
+}

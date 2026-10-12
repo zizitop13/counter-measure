@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": "001-single-thread-json",
+  "title": "One-thread TCP JSON processing: CPython vs Java ZGC",
+  "python_version": "3.15.0",
+  "java_version": "27+35",
+  "java_release": 27,
+  "defaults": {
+    "runs": 5,
+    "warmup_seconds": 10,
+    "duration_seconds": 10,
+    "payload_bytes": 256,
+    "flush_every": 256,
+    "buffer_bytes": 65536,
+    "window": 1024,
+    "fixed_rate_mps": 10000,
+    "heap_mib": 1536,
+    "memory_limit_mib": 3072,
+    "retain": 1000000,
+    "allocation_rounds": 8
+  }
+}

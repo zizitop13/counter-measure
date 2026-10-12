@@ -1,0 +1,132 @@
+name: Benchmarks and Pages
+
+on:
+  push:
+    branches: [main]
+    paths: ['counter-measures/**', 'tools/**', 'run_benchmarks', '.github/workflows/benchmarks.yml']
+  workflow_dispatch:
+    inputs:
+      counter_measure:
+        description: Catalog ID, or all
+        default: all
+        type: string
+      payload_bytes:
+        description: NDJSON bytes per input message, including newline
+        default: '256'
+        type: string
+      offered_rate:
+        description: Fixed-rate messages per second (also runs unlimited mode)
+        default: '10000'
+        type: string
+      warmup_seconds:
+        description: Discarded warm-up in each fresh handler process
+        default: '10'
+        type: string
+      duration_seconds:
+        description: Measured send interval per run
+        default: '10'
+        type: string
+      retained_messages:
+        description: Scenario C ring capacity
+        default: '1000000'
+        type: string
+      measured_runs:
+        description: Runs per scenario / load mode / language (minimum five)
+        default: '5'
+        type: string
+
+concurrency:
+  group: counter-measure-pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: write
+      pages: write
+    outputs:
+      report_ready: ${{ steps.report.outputs.ready }}
+    env:
+      COUNTER_MEASURE: ${{ inputs.counter_measure || 'all' }}
+      PAYLOAD_BYTES: ${{ inputs.payload_bytes || '256' }}
+      OFFERED_RATE: ${{ inputs.offered_rate || '10000' }}
+      WARMUP_SECONDS: ${{ inputs.warmup_seconds || '10' }}
+      DURATION_SECONDS: ${{ inputs.duration_seconds || '10' }}
+      RETAINED_MESSAGES: ${{ inputs.retained_messages || '1000000' }}
+      MEASURED_RUNS: ${{ inputs.measured_runs || '5' }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.15.0'
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '27.0.0+35'
+      - name: Validate behavior before measuring
+        run: python tools/check.py
+      - name: Restore other topics' latest results
+        run: python tools/result_store.py restore
+      - name: Prepare equal cgroup memory budgets
+        run: |
+          group="/sys/fs/cgroup/counter-measure-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          sudo "$(command -v python)" tools/prepare_cgroup.py --parent "$group"
+          printf 'BENCHMARK_CGROUP=%s\n' "$group" >> "$GITHUB_ENV"
+      - name: Run paired benchmark matrix on the same machine
+        run: |
+          python_executable="$(command -v python)"
+          sudo --preserve-env=PATH,JAVA_HOME,GITHUB_REPOSITORY,GITHUB_SHA,GITHUB_RUN_ID,GITHUB_RUN_ATTEMPT \
+            "$python_executable" tools/benchmarks.py \
+            --counter-measure "$COUNTER_MEASURE" \
+            --python "$python_executable" --java "$JAVA_HOME/bin/java" --javac "$JAVA_HOME/bin/javac" \
+            --runs "$MEASURED_RUNS" --warmup "$WARMUP_SECONDS" --duration "$DURATION_SECONDS" \
+            --payload-bytes "$PAYLOAD_BYTES" --rate "$OFFERED_RATE" --retain "$RETAINED_MESSAGES" \
+            --cgroup-parent "$BENCHMARK_CGROUP" --delete-output
+      - name: Store latest results and HTML (replace previous results per topic)
+        run: python tools/result_store.py publish
+      - name: Report to workflow summary
+        id: report
+        run: |
+          python -c 'from pathlib import Path; import os; p=Path(os.environ["GITHUB_STEP_SUMMARY"]); p.write_text("\n\n".join(f.read_text() for f in sorted(Path("results/latest").glob("*/summary.md"))))'
+          printf 'ready=true\n' >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: benchmark-evidence
+          path: results/latest
+          retention-days: 14
+          compression-level: 6
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: results/latest/site
+      - name: Clean empty cgroup subtree
+        if: always()
+        run: |
+          if [ -n "${BENCHMARK_CGROUP:-}" ]; then
+            sudo rmdir "$BENCHMARK_CGROUP" || true
+          fi
+
+  deploy:
+    needs: benchmark
+    if: github.ref == 'refs/heads/main' && needs.benchmark.outputs.report_ready == 'true'
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Replace the published report
+        id: deployment
+        uses: actions/deploy-pages@v4
