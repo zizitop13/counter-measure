@@ -1,0 +1,28 @@
+@host = http://localhost:1234
+
+### 0. Inspect loaded/available models before a benchmark session
+GET {{host}}/api/v1/models
+
+### 1. Explain — nested-if variant
+POST {{host}}/api/v1/chat
+Content-Type: application/json
+
+< ./http-requests/01-explain-nested.json
+
+### 2. Explain — guard-clause variant
+POST {{host}}/api/v1/chat
+Content-Type: application/json
+
+< ./http-requests/02-explain-guards.json
+
+### 3. Change request — nested-if variant
+POST {{host}}/api/v1/chat
+Content-Type: application/json
+
+< ./http-requests/03-change-nested.json
+
+### 4. Change request — guard-clause variant
+POST {{host}}/api/v1/chat
+Content-Type: application/json
+
+< ./http-requests/04-change-guards.json
