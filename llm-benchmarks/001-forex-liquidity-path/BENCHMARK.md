@@ -95,7 +95,15 @@ Continue until there are at least five paired runs.
 
 Each raw LM Studio response is saved under `results/raw/`.
 
-For every response, score correctness against [`evaluation/rubric.json`](evaluation/rubric.json), using [`evaluation/golden-answer.md`](evaluation/golden-answer.md) as the reference semantics. See [`evaluation/README.md`](evaluation/README.md) for the scoring rules.
+Immediately grade a saved response with:
+
+```bash
+./judge-answer.sh results/raw/<response>.json
+```
+
+The judge reads only the candidate answer, golden answer, and rubric. It does not receive the Java source. The script writes a raw judge response and a normalized deterministic score under `results/judged/`. Judge token usage is diagnostic only and must never be mixed with the benchmark model's token cost.
+
+For every response, score correctness against [`evaluation/rubric.json`](evaluation/rubric.json), using [`evaluation/golden-answer.md`](evaluation/golden-answer.md) as the reference semantics. Use [`judge-answer.sh`](judge-answer.sh) for automated scoring and manually audit the result during the initial experiment. See [`evaluation/README.md`](evaluation/README.md) and [`evaluation/JUDGE.md`](evaluation/JUDGE.md).
 
 For every response, record in `results/manual-runs.csv`:
 
