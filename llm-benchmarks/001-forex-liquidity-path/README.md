@@ -49,6 +49,12 @@ mvn test
 
 The tests execute both planners against the same cases and include a direct equivalence assertion.
 
+## IntelliJ + LM Studio semi-manual protocol
+
+For the first experiment, use [`lm-studio.http`](lm-studio.http). It calls LM Studio's local native API directly and uses fixed request bodies for nested-if and guard-clause variants. See [`LM_STUDIO.md`](LM_STUDIO.md) for setup, fixed inference settings, run ordering, and which response statistics to record in [`results/manual-runs.csv`](results/manual-runs.csv).
+
+The request pairs expose identical tasks and common domain context; only the planner implementation differs. Keep `input_tokens` separate from `reasoning_output_tokens`: source length is a representation cost, while reasoning output is a more useful first proxy for comprehension effort.
+
 ## Initial LM Studio protocol
 
 For an initial manual experiment:
