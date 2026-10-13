@@ -53,9 +53,7 @@ esac
 
 DOMAIN_FILE="$ROOT/src/main/java/dev/countermeasure/llm/liquidity/LiquidityDomain.java"
 INTERFACE_FILE="$ROOT/src/main/java/dev/countermeasure/llm/liquidity/LiquidityPathPlanner.java"
-TEST_FILE="$ROOT/src/test/java/dev/countermeasure/llm/liquidity/LiquidityPathPlannerContractTest.java"
-
-for file in "$TASK_FILE" "$DOMAIN_FILE" "$INTERFACE_FILE" "$PLANNER_FILE" "$TEST_FILE"; do
+for file in "$TASK_FILE" "$DOMAIN_FILE" "$INTERFACE_FILE" "$PLANNER_FILE"; do
   [[ -f "$file" ]] || { echo "Missing file: $file" >&2; exit 1; }
 done
 
@@ -75,9 +73,6 @@ trap 'rm -f "$PROMPT_FILE" "$PAYLOAD_FILE"' EXIT
 
   printf '\n\n--- %s ---\n' "$(basename "$PLANNER_FILE")"
   cat "$PLANNER_FILE"
-
-  printf '\n\n--- LiquidityPathPlannerContractTest.java ---\n'
-  cat "$TEST_FILE"
 } > "$PROMPT_FILE"
 
 python3 - "$PROMPT_FILE" "$PAYLOAD_FILE" <<'PY'
