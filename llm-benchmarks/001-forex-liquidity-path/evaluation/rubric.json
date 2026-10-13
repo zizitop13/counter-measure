@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "task": "explain-liquidity-path",
+  "pass_rule": {
+    "all_critical_items_required": true,
+    "minimum_total_score": 15,
+    "maximum_score": 16
+  },
+  "items": [
+    {"id":"enabled","description":"Says provider must be enabled","points":1,"critical":true},
+    {"id":"pair","description":"Says provider must support the requested pair","points":1,"critical":true},
+    {"id":"region","description":"Says provider must admit the client region","points":1,"critical":true},
+    {"id":"credit","description":"Says credit must be approved","points":1,"critical":true},
+    {"id":"not_future","description":"Says quote must not be after request.now","points":1,"critical":true},
+    {"id":"not_stale","description":"Says quote must not be older than now minus maxQuoteAge","points":1,"critical":true},
+    {"id":"positive_liquidity","description":"Says available amount must be strictly positive","points":1,"critical":true},
+    {"id":"regulatory_filter","description":"Says provider must satisfy regulatory venue rules","points":1,"critical":true},
+    {"id":"buy_order","description":"Says BUY uses ascending price order","points":1,"critical":true},
+    {"id":"sell_order","description":"Says SELL uses descending price order","points":1,"critical":true},
+    {"id":"split_greedy","description":"Explains sequential greedy splitting across providers","points":1,"critical":true},
+    {"id":"allocation_min","description":"Explains allocation is min(provider available, remaining)","points":1,"critical":true},
+    {"id":"partial_fill","description":"Explains partial legs are returned when liquidity is insufficient","points":1,"critical":true},
+    {"id":"insufficient_status","description":"Says insufficient fill returns INSUFFICIENT_LIQUIDITY","points":1,"critical":true},
+    {"id":"reg_profiles","description":"Correctly maps FLEXIBLE=all, US_SEF_REQUIRED=SEF only, EU_MTF_REQUIRED=MTF only","points":1,"critical":true},
+    {"id":"inclusive_boundaries","description":"Correctly recognizes now and now-maxQuoteAge boundaries as inclusive","points":1,"critical":false}
+  ],
+  "critical_errors": [
+    "Reverses BUY or SELL price ordering",
+    "Claims future quotes are eligible",
+    "Claims stale quotes older than maxQuoteAge are eligible",
+    "Maps US_SEF_REQUIRED or EU_MTF_REQUIRED to the wrong venue",
+    "Claims incomplete requests return COMPLETE",
+    "Claims a provider may be used despite failing an eligibility condition"
+  ]
+}
