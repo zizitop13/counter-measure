@@ -72,7 +72,8 @@ The script constructs the request at runtime from:
 - `LiquidityDomain.java`
 - `LiquidityPathPlanner.java`
 - exactly one planner implementation
-- the real `LiquidityPathPlannerContractTest.java`
+
+The model does **not** receive unit tests in the prompt. Tests remain an external correctness oracle for code-change tasks rather than a source of requirements for comprehension.
 
 No Java source is duplicated in request fixtures.
 
@@ -94,6 +95,8 @@ Continue until there are at least five paired runs.
 
 Each raw LM Studio response is saved under `results/raw/`.
 
+For every response, score correctness against [`evaluation/rubric.json`](evaluation/rubric.json), using [`evaluation/golden-answer.md`](evaluation/golden-answer.md) as the reference semantics. See [`evaluation/README.md`](evaluation/README.md) for the scoring rules.
+
 For every response, record in `results/manual-runs.csv`:
 
 - input tokens
@@ -104,7 +107,7 @@ For every response, record in `results/manual-runs.csv`:
 - whether the explanation is correct
 - any relevant notes
 
-Correctness comes first. A short but wrong answer is not a better result.
+Correctness comes first. A short but wrong answer is not a better result. Embedding similarity is not used as the pass/fail criterion.
 
 ## 4. Change benchmark
 
