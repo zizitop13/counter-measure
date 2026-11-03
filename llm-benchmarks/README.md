@@ -17,4 +17,4 @@ These experiments are deliberately separate from `counter-measures/`, which meas
 
 Current benchmarks:
 
-- [001 — Forex liquidity path: nested conditionals vs guard clauses](001-forex-liquidity-path/README.md)
+- [001 — Stock quote selection: nested conditionals vs guard clauses](001-stock-quote-selection/README.md)
