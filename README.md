@@ -10,7 +10,7 @@ Reproducible performance comparisons of languages, runtimes, and implementation 
 
 ## LLM code-clarity experiments
 
-Separate from runtime performance counter-measures, [`llm-benchmarks/`](llm-benchmarks/README.md) contains controlled, functionally equivalent code variants for experiments on LLM comprehension and modification cost. The first experiment compares nested conditionals with guard clauses in a synthetic Forex liquidity-path domain and is intended for manual local runs with LM Studio.
+Separate from runtime performance counter-measures, [`llm-benchmarks/`](llm-benchmarks/README.md) contains controlled, functionally equivalent code variants for experiments on LLM comprehension and modification cost. The first experiment compares nested conditionals with guard clauses in a synthetic stock quote-selection domain and is intended for manual local runs with LM Studio.
 
 ## Run locally
 
