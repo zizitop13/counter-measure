@@ -88,7 +88,7 @@ payload = {
     "model": os.environ.get("LM_STUDIO_MODEL", "qwen/qwen3.6-27b"),
     "system_prompt": (
         "You are evaluating an existing Java codebase. Work only from the source "
-        "and tests supplied in this request. Do not assume unstated business rules. "
+        "supplied in this request. Do not assume unstated business rules. "
         "The regulatory rules are synthetic benchmark rules, not statements about "
         "real financial regulation. Be precise and concise."
     ),
