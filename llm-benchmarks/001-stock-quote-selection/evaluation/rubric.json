@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "task": "explain-stock-quote-selection",
+  "pass_rule": {
+    "all_critical_items_required": true,
+    "minimum_total_score": 16,
+    "maximum_score": 17
+  },
+  "items": [
+    {"id":"disabled","description":"disabled -> SOURCE_DISABLED","points":1,"critical":true},
+    {"id":"symbol","description":"unsupported symbol -> SYMBOL_UNSUPPORTED","points":1,"critical":true},
+    {"id":"region","description":"region not allowed -> REGION_NOT_ALLOWED","points":1,"critical":true},
+    {"id":"entitlement","description":"missing entitlement -> ENTITLEMENT_MISSING","points":1,"critical":true},
+    {"id":"future","description":"future timestamp -> FUTURE_TIMESTAMP","points":1,"critical":true},
+    {"id":"stale","description":"stale quote -> STALE_QUOTE","points":1,"critical":true},
+    {"id":"price","description":"invalid price -> INVALID_PRICE","points":1,"critical":true},
+    {"id":"price_definition","description":"valid price requires non-null positive bid/ask and bid <= ask","points":1,"critical":true},
+    {"id":"size","description":"non-positive bid or ask size -> INVALID_SIZE","points":1,"critical":true},
+    {"id":"feed","description":"disallowed feed type -> FEED_TYPE_NOT_ALLOWED","points":1,"critical":true},
+    {"id":"realtime","description":"REALTIME plus delayed quote -> REALTIME_REQUIRED","points":1,"critical":true},
+    {"id":"delayed_mode","description":"DELAYED_ALLOWED permits delayed quotes after other checks","points":1,"critical":true},
+    {"id":"accepted","description":"otherwise -> ACCEPTED","points":1,"critical":true},
+    {"id":"first_failure","description":"first failing rule determines the recorded decision","points":1,"critical":true},
+    {"id":"best_bid","description":"highest accepted bid is selected","points":1,"critical":true},
+    {"id":"best_ask","description":"lowest accepted ask is selected and may come from another source","points":1,"critical":true},
+    {"id":"boundaries","description":"time boundaries are inclusive","points":1,"critical":false}
+  ],
+  "critical_errors": [
+    "Uses lowest bid or highest ask as the best quote",
+    "Allows crossed prices with bid greater than ask",
+    "Allows a delayed quote in REALTIME mode",
+    "Misstates a rejection decision",
+    "Claims later failures override the first failure"
+  ]
+}
